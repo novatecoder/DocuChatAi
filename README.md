@@ -14,9 +14,15 @@ ollama pull mistral
 ollama pull nomic-embed-text
 ollama serve
 
+
+app 실행
+python3 app.py
+
+curl로 테스트
 curl --request POST \
 --url http://localhost:8080/embed \
 --header 'Content-Type: multipart/form-data' \
 --form file=@/home/kwh/workspace/git/DocuChatAi/Documents/test.pdf
 
 curl --request POST --url 'http://localhost:8080/query' --header 'Content-Type: application/json' --data '{ "query": "What are the key points of the abstract?" }'
+
