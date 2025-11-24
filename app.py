@@ -73,7 +73,6 @@ def route_query():
     try:
         response = query2(user_query)
 
-        print(user_query)
         if response:
             logging.info(f"쿼리 처리 성공: {user_query}")
             return jsonify({"message": response}), 200
