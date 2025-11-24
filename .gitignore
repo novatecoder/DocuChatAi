@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+uv.lock
+
+# Environment
+.env
+
+# Data
+chroma/
+_temp/

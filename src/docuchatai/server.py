@@ -2,28 +2,26 @@ import os
 import logging
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # CORS 추가
-from werkzeug.utils import secure_filename # 파일 이름 보안
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
-# 사용자 정의 모듈 임포트
-from embed import embed2
-from query import query2
+# [수정] 상대 경로 임포트 및 변경된 함수명 사용
+from .embed import process_embedding
+from .query import generate_answer
 
-# .env 파일에서 환경 변수를 로드합니다.
+# .env 로드
 load_dotenv()
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
-# 임시 파일을 저장할 폴더를 설정하고, 폴더가 없으면 생성합니다.
+# 임시 폴더 설정
 TEMP_FOLDER = os.getenv('TEMP_FOLDER', './_temp')
 os.makedirs(TEMP_FOLDER, exist_ok=True)
 
-# Flask 애플리케이션을 초기화합니다.
 app = Flask(__name__)
-CORS(app)  # CORS 설정 적용
+CORS(app)
 
-# 허용할 파일 확장자 목록 (예시)
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'md'}
 
 def allowed_file(filename):
@@ -31,7 +29,7 @@ def allowed_file(filename):
 
 @app.route('/embed', methods=['POST'])
 def route_embed():
-    """파일을 업로드받아 임베딩을 처리하는 라우트입니다."""
+    """파일을 업로드받아 임베딩을 처리하는 라우트"""
     if 'file' not in request.files:
         return jsonify({"error": "요청에 파일 파트가 없습니다."}), 400
     
@@ -46,12 +44,13 @@ def route_embed():
     filename = secure_filename(file.filename)
 
     try:
-        is_success = embed2(file)
+        # [수정] 변경된 함수명 호출
+        is_success = process_embedding(file)
         if is_success:
             logging.info(f"파일 임베딩 성공: {filename}")
             return jsonify({"message": f"파일 '{filename}'이(가) 성공적으로 임베딩되었습니다."}), 200
         else:
-            logging.warning(f"파일 임베딩 실패 (함수 반환값 False): {filename}")
+            logging.warning(f"파일 임베딩 실패: {filename}")
             return jsonify({"error": "파일 임베딩 로직에서 실패했습니다."}), 400
     except Exception as e:
         logging.error(f"임베딩 중 예외 발생 ({filename}): {e}", exc_info=True)
@@ -60,7 +59,7 @@ def route_embed():
 
 @app.route('/query', methods=['POST'])
 def route_query():
-    """JSON 형식의 쿼리를 받아 처리하고 결과를 반환하는 라우트입니다."""
+    """질문을 받아 답변을 반환하는 라우트"""
     if not request.is_json:
         return jsonify({"error": "요청 형식이 JSON이 아닙니다."}), 400
 
@@ -71,7 +70,8 @@ def route_query():
         return jsonify({"error": "'query' 필드가 필요합니다."}), 400
 
     try:
-        response = query2(user_query)
+        # [수정] 변경된 함수명 호출
+        response = generate_answer(user_query)
 
         if response:
             logging.info(f"쿼리 처리 성공: {user_query}")
@@ -82,7 +82,3 @@ def route_query():
     except Exception as e:
         logging.error(f"쿼리 처리 중 예외 발생: {e}", exc_info=True)
         return jsonify({"error": "쿼리 처리 중 서버 내부 오류가 발생했습니다."}), 500
-
-if __name__ == '__main__':
-    # 실제 배포 시에는 debug=False 로 설정해야 합니다.
-    app.run(host="0.0.0.0", port=8080, debug=True)
