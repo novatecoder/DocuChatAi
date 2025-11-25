@@ -5,7 +5,6 @@ from werkzeug.utils import secure_filename
 from langchain_community.document_loaders import UnstructuredPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# [수정] 상대 경로 임포트
 from .get_vector_db import get_vector_db
 
 TEMP_FOLDER = os.getenv('TEMP_FOLDER', './_temp')
@@ -28,7 +27,6 @@ def load_and_split_data(file_path):
     chunks = text_splitter.split_documents(data)
     return chunks
 
-# [수정] 함수명 변경: embed2 -> process_embedding
 def process_embedding(file):
     """파일을 받아 임베딩의 모든 과정을 처리합니다."""
     if file.filename != '' and file and allowed_file(file.filename):
@@ -37,7 +35,6 @@ def process_embedding(file):
         
         db = get_vector_db()
         db.add_documents(chunks)
-        # db.persist() # 최신 ChromaDB에서는 자동 저장되므로 생략 가능하나, 버전 호환성을 위해 유지해도 됨
         
         os.remove(file_path)
         return True

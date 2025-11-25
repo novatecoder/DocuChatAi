@@ -5,7 +5,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
-# [수정] 상대 경로 임포트 및 변경된 함수명 사용
 from .embed import process_embedding
 from .query import generate_answer
 
@@ -44,7 +43,6 @@ def route_embed():
     filename = secure_filename(file.filename)
 
     try:
-        # [수정] 변경된 함수명 호출
         is_success = process_embedding(file)
         if is_success:
             logging.info(f"파일 임베딩 성공: {filename}")
@@ -70,7 +68,6 @@ def route_query():
         return jsonify({"error": "'query' 필드가 필요합니다."}), 400
 
     try:
-        # [수정] 변경된 함수명 호출
         response = generate_answer(user_query)
 
         if response:

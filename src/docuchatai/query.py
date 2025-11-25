@@ -5,7 +5,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain.retrievers.multi_query import MultiQueryRetriever
 
-# [수정] 상대 경로 임포트
 from .get_vector_db import get_vector_db
 
 LLM_MODEL = os.getenv('LLM_MODEL', 'mistral')
@@ -22,7 +21,6 @@ def get_prompt():
     prompt = ChatPromptTemplate.from_template(template)
     return QUERY_PROMPT, prompt
 
-# [수정] 함수명 변경: query2 -> generate_answer
 def generate_answer(input_question):
     """사용자의 질문을 받아 답변을 생성합니다."""
     if not input_question:
